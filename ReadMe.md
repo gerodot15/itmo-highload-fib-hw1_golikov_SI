@@ -135,96 +135,95 @@ Prometheus
 
 up 
 
-up{job=~"app1|app2"}  метрики по двум apps
+up{job="items-service"}  метрики по двум apps
 
-sum(up{job=~"app1|app2"}) 
+sum(up{job="items-service"})
 ------------------------------------------
 Traffic
 
 overall requests 
-sum(http_server_requests_seconds_count)
+sum(http_requests_total)
 
 rps
-sum(rate(http_server_requests_seconds_count[1m]))
+sum(rate(http_requests_total[1m]))
 
 rps per instance
-sum by (instance) (
-  rate(http_server_requests_seconds_count[1m])
+sum by (pod) (
+  rate(http_requests_total[1m])
 )
 
 methods-rps
 sum by (method) (
-  rate(http_server_requests_seconds_count[1m])
+  rate(http_requests_total[1m])
 )
-
 ------------------------------------------------
 
 Errors
 
-overall error requests
-sum(http_server_requests_seconds_count{status=~"4..|5.."})
-
-400 count
-
-sum(http_server_requests_seconds_count{status="404"})
+404 count
+sum(http_requests_total{status="404"})
 
 500 count
-sum(http_server_requests_seconds_count{status="500"})
+sum(http_requests_total{status="500"})
 
 
 % errors in summary
 100 *
-sum(rate(http_server_requests_seconds_count{status=~"4..|5.."}[1m]))
+sum(rate(http_requests_total{status=~"4..|5.."}[1m]))
 /
-sum(rate(http_server_requests_seconds_count[1m]))
+sum(rate(http_requests_seconds_count[1m]))
+
+errors per instance 
+sum by (pod, status) (
+  rate(http_requests_total{status=~"4..|5.."}[1m])
+)
 
 -------------------------------------------------------------------
 
 Latency
 
 avg_time_requests
-
-sum(rate(http_server_requests_seconds_sum[1m]))
+sum(rate(http_server_request_duration_seconds_sum[1m]))
 /
-sum(rate(http_server_requests_seconds_count[1m]))
+sum(rate(http_requests_total[1m]))
 
-50p mediana
-
+p50 mediana
 histogram_quantile(
   0.50,
   sum by (le) (
-    rate(http_server_requests_seconds_bucket[1m])
+    rate(http_server_request_duration_seconds_bucket[1m])
   )
 )
 
-95p
+p90
+histogram_quantile(
+  0.90,
+  sum by (le) (
+    rate(http_server_request_duration_seconds_bucket[1m])
+  )
+)
+p95
 histogram_quantile(
   0.95,
   sum by (le) (
-    rate(http_server_requests_seconds_bucket[1m])
+    rate(http_server_request_duration_seconds_bucket[1m])
   )
 )
-
-99p
+p99
 histogram_quantile(
   0.99,
   sum by (le) (
-    rate(http_server_requests_seconds_bucket[1m])
-  )
-)
-
-95p per instance
-histogram_quantile(
-  0.95,
-  sum by (instance, le) (
-    rate(http_server_requests_seconds_bucket[1m])
+    rate(http_server_request_duration_seconds_bucket[1m])
   )
 )
 
 count for each endpoints
 
-sum by (uri) (
-  rate(http_server_requests_seconds_count[1m])
+histogram_quantile(
+  0.95,
+  sum by (pod, le) (
+    rate(http_server_request_duration_seconds_bucket[1m])
+  )
 )
 
 % of succeeded requests
