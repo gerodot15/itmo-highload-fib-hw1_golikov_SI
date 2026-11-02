@@ -1,6 +1,6 @@
 Highload HW1 — Items Service
 Java-реализация задания по мониторингу CRUD-микросервиса. В проект входят два экземпляра Items Service, Prometheus, Grafana, генератор dashboard из runtime-каталога HTTP-ручек и k6-нагрузчик.  
-Ссылка на видео:
+Ссылка на видео: https://disk.yandex.ru/i/Ql89zYphBoaZjA
 
 1\. Технологический стек
 
