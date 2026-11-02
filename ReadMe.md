@@ -18,14 +18,11 @@ Java-реализация задания по мониторингу CRUD-мик
 | Docker Compose | v2  |
 
 Запуск всего стенда
-
-\`\`\`bash
-
+```
 cp .env.example .env
 
 docker compose up -d --build
-
-\`\`\`
+```
 
 Endpoints  
 
@@ -35,7 +32,6 @@ Endpoints
 | Items Service instance 2 | localhost:8081 |
 | Grafana | localhost:3000 |
 | Prometheus | localhost:9090 |
-
   
 Grafana creds: admin%admin
 
@@ -55,7 +51,7 @@ Micrometer публикует percentile histogram и SLO-buckets. В PromQL с�
 
 Пример p95 для \`GET /items/{id}\` с учётом выбранных датацентров и pod:
 
-\`\`\`promql
+```promql
 
 histogram_quantile(
 
@@ -79,13 +75,13 @@ route="/items/{id}"
 
 )
 
-\`\`\`
+```
 
 RPS и ошибки
 
 RPS агрегируется суммой скоростей счётчика по выбранным pod и датацентрам:
 
-\`\`\`promql
+```promql
 
 sum(
 
@@ -103,11 +99,11 @@ route="/items/{id}"
 
 )
 
-\`\`\`
+```
 
 Ошибки отображаются отдельно по HTTP-коду ответа:
 
-\`\`\`promql
+```promql
 
 sum by (status) (
 
@@ -126,7 +122,7 @@ status=~"4..|5.."
 }\[$\__rate_interval\])
 
 )
-
+```
 \`\`\`
 
-Нагрузчик реализован на k6 в \`load/test.js\`. Используются два параллельных сценария \`ramping-arrival-rate\`: один направляет трафик только на \`app1\`, второй — только на \`app2\`.
+Наг``рузчик реализован на k6 в \`load/test.js\`. Используются два параллельных сценария \`ramping-arrival-rate\`: один направляет трафик только на \`app1\`, второй — только на \`app2\`.
