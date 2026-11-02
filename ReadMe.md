@@ -1,5 +1,4 @@
 Highload HW1 — Items Service
-
 Java-реализация задания по мониторингу CRUD-микросервиса. В проект входят два экземпляра Items Service, Prometheus, Grafana, генератор dashboard из runtime-каталога HTTP-ручек и k6-нагрузчик.  
 Ссылка на видео:
 
@@ -51,8 +50,8 @@ Grafana creds: admin%admin
 Micrometer публикует percentile histogram и SLO-buckets. В PromQL сначала применяется `rate`, затем bucket-счётчики суммируются по `le`, и только после этого `histogram_quantile` вычисляет квантиль общей выборки.
 
 Пример p95 для `GET /items/{id}` с учётом выбранных датацентров и pod:
-
-```promql
+promql
+```
 
 histogram_quantile(
 
@@ -131,13 +130,9 @@ Promql
 
 Prometheus
 
-Prometheus
+up{job="items-service"} проверить коллект экземпляров apps
 
-up 
-
-up{job="items-service"}  метрики по двум apps
-
-sum(up{job="items-service"})
+sum(up{job="items-service"}) метрики по двум apps
 ------------------------------------------
 Traffic
 
@@ -171,10 +166,16 @@ sum(http_requests_total{status="500"})
 100 *
 sum(rate(http_requests_total{status=~"4..|5.."}[1m]))
 /
-sum(rate(http_requests_seconds_count[1m]))
+sum(rate(http_requests_total[1m]))
 
 errors per instance 
 sum by (pod, status) (
+  rate(http_requests_total{status=~"4..|5.."}[1m])
+)
+
+errors per second
+
+sum by (status) (
   rate(http_requests_total{status=~"4..|5.."}[1m])
 )
 
@@ -217,7 +218,7 @@ histogram_quantile(
   )
 )
 
-count for each endpoints
+p95 for each endpoints
 
 histogram_quantile(
   0.95,
@@ -228,6 +229,6 @@ histogram_quantile(
 
 % of succeeded requests
 100 *
-sum(rate(http_server_requests_seconds_count{status=~"2.."}[1m]))
+sum(rate(http_requests_total{status=~"2.."}[1m]))
 /
-sum(rate(http_server_requests_seconds_count[1m]))
+sum(rate(http_requests_total[1m]))
